@@ -91,10 +91,10 @@
 
   <!-- Main card -->
   <div class="card">
-    <h2>Check Your Remaining Benefit</h2>
+    <h2>Check Your Remaining Coverage</h2>
 
-    <input type="text" id="ic" placeholder="Enter IC">
-    <input type="password" id="password" placeholder="Enter password">
+    <input type="text" id="ic" placeholder="Enter Company Email">
+    <input type="password" id="password" placeholder="Enter Password">
     <button id="btn">Submit</button>
 
     <div id="result"></div>
@@ -102,7 +102,7 @@
 
   <script>
     // 🔗 Paste *your* Apps Script URL between the quotes
-    const endpoint = "https://script.google.com/macros/s/AKfycbzBudHJWfyQIB3yO8jQ6G-J0IGTpRQfsuJ5NNrXZXqOXEgeN2qvDhJpt36qKUu0qPdg/exec";
+    const endpoint = "https://script.google.com/macros/s/AKfycbwkYde8DNUPWic5jiY4vTtySbTfkVUMR77UK_ReJMNipe1_sxiH55c_G3hU6muonBqu/exec";
 
     document.getElementById('btn').addEventListener('click', async () => {
       const ic       = document.getElementById('ic').value.trim();
@@ -111,7 +111,7 @@
 
       if (!ic || !password) {
         result.style.color = "red";
-        result.textContent = "Please fill both fields.";
+        result.textContent = "Please complete both fields.";
         return;
       }
 
@@ -129,11 +129,18 @@
         const data = await res.json();
 
         if (data.success) {
-          result.innerHTML = `
-            <span style="color:var(--grey);">Hello <strong>${data.name}</strong>!</span><br>
-            Remaining Claimable Amount:<br>
-            <span style="font-size:1.6rem;font-weight:600;color:var(--cyan);">${data.amount}</span>`;
-        } else {
+
+  // 🔹 Format number with commas and 2 decimals
+  const formatted = Number(data.amount)
+      .toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  result.innerHTML = `
+    <span style="color:var(--grey);">Hello <strong>${data.name}</strong>!</span><br>
+    Remaining Claimable Amount (RM):<br>
+    <span style="font-size:1.6rem;font-weight:600;color:var(--cyan);">${formatted}</span>`;
+}
+
+ else {
           result.style.color = "red";
           result.textContent = data.message;
         }
@@ -142,6 +149,8 @@
         result.textContent = "Error: " + err;
       }
     });
+
+
   </script>
 </body>
 </html>
