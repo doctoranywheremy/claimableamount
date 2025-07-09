@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Doctor Anywhere • Benefit Checker</title>
+
+  <!-- Google Font for a cleaner look -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cyan: #00c2d9;
+      --grey: #7d7d7d;
+      --bg:   #f7f9fc;
+      --card: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    /* Logo */
+    .logo {
+      width: 160px;
+      margin: 40px auto 20px;
+      display: block;
+    }
+
+    /* Card wrapper */
+    .card {
+      background: var(--card);
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 12px 25px rgba(0,0,0,.06);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-weight: 600;
+      color: var(--grey);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      margin: 10px 0;
+      border: 2px solid #e1e5ea;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color .2s;
+    }
+    input:focus { border-color: var(--cyan); outline: none; }
+
+    button {
+      width: 100%;
+      padding: 12px 14px;
+      margin-top: 6px;
+      background: var(--cyan);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .1s;
+    }
+    button:active { transform: scale(.98); }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Doctor Anywhere Logo -->
+  <img src="da-logo.png" alt="Doctor Anywhere" class="logo">
+
+  <!-- Main card -->
+  <div class="card">
+    <h2>Check Your Remaining Benefit</h2>
+
+    <input type="text" id="ic" placeholder="Enter IC">
+    <input type="password" id="password" placeholder="Enter password">
+    <button id="btn">Submit</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // 🔗 Paste *your* Apps Script URL between the quotes
+    const endpoint = "https://script.google.com/macros/s/AKfycbzBudHJWfyQIB3yO8jQ6G-J0IGTpRQfsuJ5NNrXZXqOXEgeN2qvDhJpt36qKUu0qPdg/exec";
+
+    document.getElementById('btn').addEventListener('click', async () => {
+      const ic       = document.getElementById('ic').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const result   = document.getElementById('result');
+
+      if (!ic || !password) {
+        result.style.color = "red";
+        result.textContent = "Please fill both fields.";
+        return;
+      }
+
+      result.style.color = "";
+      result.textContent = "Checking…";
+
+      const body = new URLSearchParams({ ic, password }).toString();
+
+      try {
+        const res  = await fetch(endpoint, {
+          method:  "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          result.innerHTML = `
+            <span style="color:var(--grey);">Hello <strong>${data.name}</strong>!</span><br>
+            Remaining Claimable Amount:<br>
+            <span style="font-size:1.6rem;font-weight:600;color:var(--cyan);">${data.amount}</span>`;
+        } else {
+          result.style.color = "red";
+          result.textContent = data.message;
+        }
+      } catch (err) {
+        result.style.color = "red";
+        result.textContent = "Error: " + err;
+      }
+    });
+  </script>
+</body>
+</html>
